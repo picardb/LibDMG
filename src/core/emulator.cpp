@@ -12,6 +12,6 @@ Emulator::Emulator()
 
 void Emulator::step(int cycles)
 {
-    m_cpu->step(cycles);
+    m_cpu->step(*this, cycles);
     m_periph->step(cycles);
 }

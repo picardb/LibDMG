@@ -37,9 +37,16 @@ namespace LibDMG
             REG16_SP
         };
 
-		Cpu(Emulator * emu = nullptr);
+		Cpu() : m_instrCycles(0),
+				m_opcode(0),
+				m_regSP(0),
+				m_regPC(0)
+        {
+            m_parameters.fill(0);
+            m_reg8.fill(0);
+        }
 
-        void step(int cycles);
+        void step(const Emulator& emu, int cycles);
 
         void saveState(std::ostream& out) { cereal::XMLOutputArchive ar(out); serialize(ar); }
         void loadState(std::istream& in) { cereal::XMLInputArchive ar(in); serialize(ar); }
@@ -72,8 +79,6 @@ namespace LibDMG
     private:
 		friend class CpuInstr;
 
-        Emulator * m_emu;
-
         int		m_instrCycles;
 		uint8_t m_opcode;
 		std::array<uint8_t, 2> m_parameters;
@@ -81,13 +86,8 @@ namespace LibDMG
         uint16_t m_regPC;
         uint16_t m_regSP;
 
-        void nextInstruction(void);
-		void fetchParam8(void);
-		void fetchParam16(void);
+        void nextInstruction(const Emulator& emu);
 
-		// 8-bit loads
-		void instrLdReg8Imm(Reg8 reg);
-		void instrLdReg8Reg8(Reg8 dest, Reg8 src);
 		void instrLdReg8Mem(Reg8 reg, Reg16 addr);
 		void instrLddReg8Mem(Reg8 reg, Reg16 addr);
 		void instrLdiReg8Mem(Reg8 reg, Reg16 addr);

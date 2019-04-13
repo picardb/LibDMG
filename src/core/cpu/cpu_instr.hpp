@@ -4,11 +4,20 @@
 namespace LibDMG
 {
     class Cpu;
+    class MemControllerBase;
 
     class CpuInstr
     {
     public:
-        static inline void nop(Cpu& cpu);
+        static void nop(Cpu& cpu);
+
+        // 8-bit loads
+        static void ldReg8Imm(Cpu& cpu, Cpu::Reg8 reg, MemControllerBase& mem);
+        static void ldReg8Reg8(Cpu& cpu, Cpu::Reg8 dest, Cpu::Reg8 src);
+
+    private:
+        static void fetchParam8(Cpu& cpu, MemControllerBase& mem);
+        static void fetchParam16(Cpu& cpu, MemControllerBase& mem);
     };
 }
 

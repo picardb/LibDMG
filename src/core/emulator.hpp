@@ -21,7 +21,7 @@ namespace LibDMG
 
         Cpu * const cpu() const { return m_cpu.get(); }
         Peripherals * const periph() const { return m_periph.get(); }
-        MemControllerRomOnly * const mem() const { return m_mem.get(); }
+        MemControllerBase& mem() const { return *m_mem.get(); }
 
         void saveState(std::ostream &out) { cereal::XMLOutputArchive ar(out); serialize(ar); }
         void loadState(std::istream &in) { cereal::XMLInputArchive ar(in); serialize(ar); }
@@ -35,7 +35,7 @@ namespace LibDMG
     private:
         std::unique_ptr<Cpu>         m_cpu;
         std::unique_ptr<Peripherals> m_periph;
-        std::unique_ptr<MemControllerRomOnly> m_mem;
+        std::unique_ptr<MemControllerBase> m_mem;
     };
 }
 

@@ -22,26 +22,17 @@ using namespace std;
 #define FLAG_TO_UINT(a) ((a) ? (1) : (0))
 
 //..................................................................................................
-Cpu::Cpu(Emulator * emu) : m_emu(emu),
-						  m_instrCycles(0),
-						  m_opcode(0),
-						  m_regSP(0),
-						  m_regPC(0)
-{
-}
-
-//..................................................................................................
-void Cpu::step(int cycles)
+void Cpu::step(const Emulator& emu, int cycles)
 {
 	while (cycles > 0)
 	{
 		if (m_instrCycles == 0)
 		{
 			// Process interrupts
-			m_emu->periph()->processInterrupts();
+			emu.periph()->processInterrupts();
 
 			// Fetch and execute next instruction
-			nextInstruction();
+			nextInstruction(emu);
 		}
 		else
 		{
@@ -213,16 +204,14 @@ uint16_t Cpu::reg16(Reg16 reg) const
 	}
 }
 
-void Cpu::nextInstruction(void)
+void Cpu::nextInstruction(const Emulator& emu)
 {
-	m_opcode = m_emu->mem()->read(m_regPC);
+	m_opcode = emu.mem().read(m_regPC);
 	m_regPC++;
 
 	switch (m_opcode)
 	{
-	case 0x00:
-		CpuInstr::nop(*this);
-		break;
+	case 0x00: CpuInstr::nop(*this); break;
 	case 0x01:
 		instrLdReg16Imm(REG16_BC);
 		break;
@@ -238,9 +227,7 @@ void Cpu::nextInstruction(void)
 	case 0x05:
 		instrDecReg8(REG8_B);
 		break;
-	case 0x06:
-		instrLdReg8Imm(REG8_B);
-		break;
+	case 0x06: CpuInstr::ldReg8Imm(*this, emu.mem(), REG8_B); break;
 	case 0x07:
 		instrRlA(true);
 		break;
@@ -262,9 +249,7 @@ void Cpu::nextInstruction(void)
 	case 0x0D:
 		instrDecReg8(REG8_C);
 		break;
-	case 0x0E:
-		instrLdReg8Imm(REG8_C);
-		break;
+	case 0x0E: CpuInstr::ldReg8Imm(*this, emu.mem(), REG8_C); break;
 	case 0x0F:
 		instrRrA(true);
 		break;
@@ -283,9 +268,7 @@ void Cpu::nextInstruction(void)
 	case 0x15:
 		instrDecReg8(REG8_D);
 		break;
-	case 0x16:
-		instrLdReg8Imm(REG8_D);
-		break;
+	case 0x16: CpuInstr::ldReg8Imm(*this, emu.mem(), REG8_D); break;
 	case 0x17:
 		instrRlA(false);
 		break;
@@ -307,9 +290,7 @@ void Cpu::nextInstruction(void)
 	case 0x1D:
 		instrDecReg8(REG8_E);
 		break;
-	case 0x1E:
-		instrLdReg8Imm(REG8_E);
-		break;
+	case 0x1E: CpuInstr::ldReg8Imm(*this, emu.mem(), REG8_E); break;
 	case 0x1F:
 		instrRrA(false);
 		break;
@@ -331,9 +312,7 @@ void Cpu::nextInstruction(void)
 	case 0x25:
 		instrDecReg8(REG8_H);
 		break;
-	case 0x26:
-		instrLdReg8Imm(REG8_H);
-		break;
+	case 0x26: CpuInstr::ldReg8Imm(*this, emu.mem(), REG8_H); break;
 	case 0x28:
 		instrJr();
 		break;
@@ -352,9 +331,7 @@ void Cpu::nextInstruction(void)
 	case 0x2D:
 		instrDecReg8(REG8_L);
 		break;
-	case 0x2E:
-		instrLdReg8Imm(REG8_L);
-		break;
+	case 0x2E: CpuInstr::ldReg8Imm(*this, emu.mem(), REG8_L); break;
 	case 0x30:
 		instrJr();
 		break;
@@ -388,39 +365,19 @@ void Cpu::nextInstruction(void)
 	case 0x3D:
 		instrDecReg8(REG8_A);
 		break;
-	case 0x3E:
-		instrLdReg8Imm(REG8_A);
-		break;
-	case 0x40:
-		instrLdReg8Reg8(REG8_B, REG8_B);
-		break;
-	case 0x41:
-		instrLdReg8Reg8(REG8_B, REG8_C);
-		break;
-	case 0x42:
-		instrLdReg8Reg8(REG8_B, REG8_D);
-		break;
-	case 0x43:
-		instrLdReg8Reg8(REG8_B, REG8_E);
-		break;
-	case 0x44:
-		instrLdReg8Reg8(REG8_B, REG8_H);
-		break;
-	case 0x45:
-		instrLdReg8Reg8(REG8_B, REG8_L);
-		break;
+	case 0x3E: CpuInstr::ldReg8Imm(*this, REG8_A, emu.mem()); break;
+	case 0x40: CpuInstr::ldReg8Reg8(*this, REG8_B, REG8_B); break;
+	case 0x41: CpuInstr::ldReg8Reg8(*this, REG8_B, REG8_C); break;
+	case 0x42: CpuInstr::ldReg8Reg8(*this, REG8_B, REG8_D); break;
+	case 0x43: CpuInstr::ldReg8Reg8(*this, REG8_B, REG8_E); break;
+    case 0x44: CpuInstr::ldReg8Reg8(*this, REG8_B, REG8_H); break;
+    case 0x45: CpuInstr::ldReg8Reg8(*this, REG8_B, REG8_L); break;
 	case 0x46:
 		instrLdReg8Mem(REG8_B, REG16_HL);
 		break;
-	case 0x47:
-		instrLdReg8Reg8(REG8_B, REG8_A);
-		break;
-	case 0x48:
-		instrLdReg8Reg8(REG8_C, REG8_B);
-		break;
-	case 0x49:
-		instrLdReg8Reg8(REG8_C, REG8_C);
-		break;
+    case 0x47: CpuInstr::ldReg8Reg8(*this, REG8_B, REG8_A); break;
+    case 0x48: CpuInstr::ldReg8Reg8(*this, REG8_C, REG8_B); break;
+    case 0x49: CpuInstr::ldReg8Reg8(*this, REG8_C, REG8_C); break;
 	case 0x4A:
 		instrLdReg8Reg8(REG8_C, REG8_D);
 		break;
@@ -825,39 +782,6 @@ void Cpu::nextInstruction(void)
 		CpuInstr::nop(*this);
 		break;
 	}
-}
-
-void Cpu::fetchParam8(void)
-{
-	m_parameters[0] = m_emu->mem()->read(m_regPC);
-	m_regPC++;
-}
-
-void Cpu::fetchParam16(void)
-{
-	m_parameters[0] = m_emu->mem()->read(m_regPC);
-	m_regPC++;
-	m_parameters[1] = m_emu->mem()->read(m_regPC);
-	m_regPC++;
-}
-
-/**************************************************************************************************/
-/* 8-bit loads                                                                                    */
-/**************************************************************************************************/
-
-//..................................................................................................
-void Cpu::instrLdReg8Imm(Reg8 reg)
-{
-	m_instrCycles = 8;
-	fetchParam8();
-	setReg8(reg, m_parameters[0]);
-}
-
-//..................................................................................................
-void Cpu::instrLdReg8Reg8(Reg8 dest, Reg8 src)
-{
-	m_instrCycles = 4;
-	setReg8(dest, reg8(src));
 }
 
 //..................................................................................................
