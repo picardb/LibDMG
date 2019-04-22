@@ -156,4 +156,79 @@ namespace LibDMG
         cpu.setFlagZ(IS_ZERO(cpu.reg8(Cpu::REG8_A)));
         cpu.setFlagN(true);
     }
+
+    //..................................................................................................
+    void CpuInstr::xorReg8(Cpu& cpu, Cpu::Reg8 reg)
+    {
+        cpu.m_instrCycles = 4;
+        cpu.setReg8(Cpu::REG8_A, cpu.reg8(Cpu::REG8_A) ^ cpu.reg8(reg));
+        cpu.setFlagZ(IS_ZERO(cpu.reg8(Cpu::REG8_A)));
+        cpu.setFlagN(false);
+        cpu.setFlagH(false);
+        cpu.setFlagC(false);
+    }
+
+    //..................................................................................................
+    void CpuInstr::incReg8(Cpu& cpu, Cpu::Reg8 reg)
+    {
+        cpu.m_instrCycles = 4;
+
+        uint8_t regVal = cpu.reg8(reg);
+        cpu.setReg8(reg, regVal + 1);
+        cpu.setFlagZ(IS_ZERO(cpu.reg8(reg)));
+        cpu.setFlagN(false);
+        cpu.setFlagH(IS_HALF_CARRY2(regVal, 1));
+    }
+
+    //..................................................................................................
+    void CpuInstr::decReg8(Cpu& cpu, Cpu::Reg8 reg)
+    {
+        cpu.m_instrCycles = 4;
+
+        uint8_t regVal = cpu.reg8(reg);
+        cpu.setReg8(reg, regVal - 1);
+        cpu.setFlagZ(IS_ZERO(cpu.reg8(reg)));
+        cpu.setFlagN(true);
+        cpu.setFlagH(IS_HALF_BORROW2(regVal, 1));
+    }
+
+    //..................................................................................................
+    void CpuInstr::cpReg8(Cpu& cpu, Cpu::Reg8 reg)
+    {
+        cpu.m_instrCycles = 4;
+
+        uint8_t aVal = cpu.reg8(Cpu::REG8_A);
+        uint8_t regVal = cpu.reg8(reg);
+        cpu.setFlagZ(IS_ZERO(aVal - regVal));
+        cpu.setFlagN(true);
+        cpu.setFlagH(IS_HALF_BORROW2(aVal, regVal));
+        cpu.setFlagC(IS_BORROW2(aVal, regVal));
+    }
+
+    //..................................................................................................
+    void CpuInstr::cpMem(Cpu& cpu, MemControllerBase& mem)
+    {
+        cpu.m_instrCycles = 8;
+
+        uint8_t aVal = cpu.reg8(Cpu::REG8_A);
+        uint8_t memVal = mem.read(cpu.reg16(Cpu::REG16_HL));
+        cpu.setFlagZ(IS_ZERO(aVal - memVal));
+        cpu.setFlagN(true);
+        cpu.setFlagH(IS_HALF_BORROW2(aVal, memVal));
+        cpu.setFlagC(IS_BORROW2(aVal, memVal));
+    }
+
+    //..................................................................................................
+    void CpuInstr::cpImm(Cpu& cpu, MemControllerBase& mem)
+    {
+        cpu.m_instrCycles = 8;
+        fetchParam8(cpu, mem);
+
+        uint8_t aVal = cpu.reg8(Cpu::REG8_A);
+        uint8_t immVal = cpu.m_parameters[0];
+        cpu.setFlagZ(IS_ZERO(aVal - immVal));
+        cpu.setFlagN(true);
+        cpu.setFlagH(IS_HALF_BORROW2(aVal, immVal));
+        cpu.setFlagC(IS_BORROW2(aVal, immVal));
+    }
 }

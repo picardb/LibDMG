@@ -88,14 +88,6 @@ namespace LibDMG
 
         void nextInstruction(const Emulator& emu);
 
-		
-		void instrXorReg8(Reg8 reg);
-		void instrIncReg8(Reg8 reg);
-		void instrDecReg8(Reg8 reg);
-		void instrCpReg8(Reg8 reg);
-		void instrCpMem(void);
-		void instrCpImm(void);
-
 		// 16-bit ALU
 		void instrIncReg16(Reg16 reg);
 		void instrDecReg16(Reg16 reg);

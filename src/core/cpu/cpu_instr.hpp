@@ -43,6 +43,12 @@ namespace LibDMG
         static void subReg8(Cpu& cpu, Cpu::Reg8 reg, bool carry = false);
         static void subMem(Cpu& cpu, MemControllerBase& mem, Cpu::Reg16 reg, bool carry = false);
         static void subImm(Cpu& cpu, MemControllerBase& mem, bool carry = false);
+        static void xorReg8(Cpu& cpu, Cpu::Reg8 reg);
+        static void incReg8(Cpu& cpu, Cpu::Reg8 reg);
+        static void decReg8(Cpu& cpu, Cpu::Reg8 reg);
+        static void cpReg8(Cpu& cpu, Cpu::Reg8 reg);
+        static void cpMem(Cpu& cpu, MemControllerBase& mem);
+        static void cpImm(Cpu& cpu, MemControllerBase& mem);
 
     private:
 
