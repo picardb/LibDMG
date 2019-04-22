@@ -9,17 +9,7 @@
 using namespace LibDMG;
 using namespace std;
 
-// HELPER MACROS
-#define IS_ZERO(a) ((a) == 0 ? (true) : (false))
-#define IS_CARRY2(a, b) ((uint16_t)(a) + (uint16_t)(b) > 256 ? (true) : (false))
-#define IS_CARRY3(a, b, c) ((uint16_t)(a) + (uint16_t)(b) + (uint16_t)(c) > 256 ? (true) : (false))
-#define IS_HALF_CARRY2(a, b) (((a)&0x0F) + ((b)&0x0F) > 16 ? (true) : (false))
-#define IS_HALF_CARRY3(a, b, c) (((a)&0x0F) + ((b)&0x0F) + ((c)&0x0F) > 16 ? (true) : (false))
-#define IS_BORROW2(a, b) ((a) < (b) ? (true) : (false))
-#define IS_BORROW3(a, b, c) ((uint16_t)(a) < (uint16_t)(b) + (uint16_t)(c) ? (true) : (false))
-#define IS_HALF_BORROW2(a, b) (((a)&0x0F) < ((b)&0x0F) ? (true) : (false))
-#define IS_HALF_BORROW3(a, b, c) (((a)&0x0F) < ((b)&0x0F) + ((c)&0x0F) ? (true) : (false))
-#define FLAG_TO_UINT(a) ((a) ? (1) : (0))
+
 
 //..................................................................................................
 void Cpu::step(const Emulator& emu, int cycles)
@@ -212,12 +202,8 @@ void Cpu::nextInstruction(const Emulator& emu)
 	switch (m_opcode)
 	{
 	case 0x00: CpuInstr::nop(*this); break;
-	case 0x01:
-		instrLdReg16Imm(REG16_BC);
-		break;
-	case 0x02:
-		instrLdMemReg8(REG16_BC, REG8_A);
-		break;
+    case 0x01: CpuInstr::ldReg16Imm(*this, REG16_BC, emu.mem()); break;
+	case 0x02: CpuInstr::ldMemReg8(*this, emu.mem(), REG16_BC, REG8_A);	break;
 	case 0x03:
 		instrIncReg16(REG16_BC);
 		break;
@@ -227,19 +213,15 @@ void Cpu::nextInstruction(const Emulator& emu)
 	case 0x05:
 		instrDecReg8(REG8_B);
 		break;
-	case 0x06: CpuInstr::ldReg8Imm(*this, emu.mem(), REG8_B); break;
+	case 0x06: CpuInstr::ldReg8Imm(*this, REG8_B, emu.mem()); break;
 	case 0x07:
 		instrRlA(true);
 		break;
-	case 0x08:
-		instrLdMemImmSp();
-		break;
+    case 0x08: CpuInstr::ldMemImmSp(*this, emu.mem()); break;
 	case 0x09:
 		instrAddHlReg16(REG16_BC);
 		break;
-	case 0x0A:
-		instrLdReg8Mem(REG8_A, REG16_BC);
-		break;
+	case 0x0A: CpuInstr::ldReg8Mem(*this, REG8_A, emu.mem(), REG16_BC);	break;
 	case 0x0B:
 		instrDecReg16(REG16_BC);
 		break;
@@ -249,16 +231,12 @@ void Cpu::nextInstruction(const Emulator& emu)
 	case 0x0D:
 		instrDecReg8(REG8_C);
 		break;
-	case 0x0E: CpuInstr::ldReg8Imm(*this, emu.mem(), REG8_C); break;
+	case 0x0E: CpuInstr::ldReg8Imm(*this, REG8_C, emu.mem()); break;
 	case 0x0F:
 		instrRrA(true);
 		break;
-	case 0x11:
-		instrLdReg16Imm(REG16_DE);
-		break;
-	case 0x12:
-		instrLdMemReg8(REG16_DE, REG8_A);
-		break;
+	case 0x11: CpuInstr::ldReg16Imm(*this, REG16_DE, emu.mem()); break;
+	case 0x12: CpuInstr::ldMemReg8(*this, emu.mem(), REG16_DE, REG8_A);	break;
 	case 0x13:
 		instrIncReg16(REG16_DE);
 		break;
@@ -268,7 +246,7 @@ void Cpu::nextInstruction(const Emulator& emu)
 	case 0x15:
 		instrDecReg8(REG8_D);
 		break;
-	case 0x16: CpuInstr::ldReg8Imm(*this, emu.mem(), REG8_D); break;
+	case 0x16: CpuInstr::ldReg8Imm(*this, REG8_D, emu.mem()); break;
 	case 0x17:
 		instrRlA(false);
 		break;
@@ -278,9 +256,7 @@ void Cpu::nextInstruction(const Emulator& emu)
 	case 0x19:
 		instrAddHlReg16(REG16_DE);
 		break;
-	case 0x1A:
-		instrLdReg8Mem(REG8_A, REG16_DE);
-		break;
+	case 0x1A: CpuInstr::ldReg8Mem(*this, REG8_A, emu.mem(), REG16_DE); break;
 	case 0x1B:
 		instrDecReg16(REG16_DE);
 		break;
@@ -290,19 +266,15 @@ void Cpu::nextInstruction(const Emulator& emu)
 	case 0x1D:
 		instrDecReg8(REG8_E);
 		break;
-	case 0x1E: CpuInstr::ldReg8Imm(*this, emu.mem(), REG8_E); break;
+	case 0x1E: CpuInstr::ldReg8Imm(*this, REG8_E, emu.mem()); break;
 	case 0x1F:
 		instrRrA(false);
 		break;
 	case 0x20:
 		instrJr();
 		break;
-	case 0x21:
-		instrLdReg16Imm(REG16_HL);
-		break;
-	case 0x22:
-		instrLdiMemReg8(REG16_HL, REG8_A);
-		break;
+	case 0x21: CpuInstr::ldReg16Imm(*this, REG16_HL, emu.mem()); break;
+	case 0x22: CpuInstr::ldiMemReg8(*this, emu.mem(), REG16_HL, REG8_A); break;	break;
 	case 0x23:
 		instrIncReg16(REG16_HL);
 		break;
@@ -312,16 +284,14 @@ void Cpu::nextInstruction(const Emulator& emu)
 	case 0x25:
 		instrDecReg8(REG8_H);
 		break;
-	case 0x26: CpuInstr::ldReg8Imm(*this, emu.mem(), REG8_H); break;
+	case 0x26: CpuInstr::ldReg8Imm(*this, REG8_H, emu.mem()); break;
 	case 0x28:
 		instrJr();
 		break;
 	case 0x29:
 		instrAddHlReg16(REG16_HL);
 		break;
-	case 0x2A:
-		instrLdiReg8Mem(REG8_A, REG16_HL);
-		break;
+	case 0x2A: CpuInstr::ldiReg8Mem(*this, REG8_A, emu.mem(), REG16_HL); break;
 	case 0x2B:
 		instrDecReg16(REG16_HL);
 		break;
@@ -331,31 +301,23 @@ void Cpu::nextInstruction(const Emulator& emu)
 	case 0x2D:
 		instrDecReg8(REG8_L);
 		break;
-	case 0x2E: CpuInstr::ldReg8Imm(*this, emu.mem(), REG8_L); break;
+	case 0x2E: CpuInstr::ldReg8Imm(*this, REG8_L, emu.mem()); break;
 	case 0x30:
 		instrJr();
 		break;
-	case 0x31:
-		instrLdReg16Imm(REG16_SP);
-		break;
-	case 0x32:
-		instrLddMemReg8(REG16_HL, REG8_A);
-		break;
+	case 0x31: CpuInstr::ldReg16Imm(*this, REG16_SP, emu.mem()); break;
+	case 0x32: CpuInstr::lddMemReg8(*this, emu.mem(), REG16_HL, REG8_A); break;
 	case 0x33:
 		instrIncReg16(REG16_SP);
 		break;
-	case 0x36:
-		instrLdMemImm(REG16_HL);
-		break;
+	case 0x36: CpuInstr::ldMemImm(*this, emu.mem(), REG16_HL); break;
 	case 0x38:
 		instrJr();
 		break;
 	case 0x39:
 		instrAddHlReg16(REG16_SP);
 		break;
-	case 0x3A:
-		instrLddReg8Mem(REG8_A, REG16_HL);
-		break;
+	case 0x3A: CpuInstr::lddReg8Mem(*this, REG8_A, emu.mem(), REG16_HL); break;
 	case 0x3B:
 		instrDecReg16(REG16_SP);
 		break;
@@ -372,267 +334,95 @@ void Cpu::nextInstruction(const Emulator& emu)
 	case 0x43: CpuInstr::ldReg8Reg8(*this, REG8_B, REG8_E); break;
     case 0x44: CpuInstr::ldReg8Reg8(*this, REG8_B, REG8_H); break;
     case 0x45: CpuInstr::ldReg8Reg8(*this, REG8_B, REG8_L); break;
-	case 0x46:
-		instrLdReg8Mem(REG8_B, REG16_HL);
-		break;
+	case 0x46: CpuInstr::ldReg8Mem(*this, REG8_B, emu.mem(), REG16_HL);	break;
     case 0x47: CpuInstr::ldReg8Reg8(*this, REG8_B, REG8_A); break;
     case 0x48: CpuInstr::ldReg8Reg8(*this, REG8_C, REG8_B); break;
     case 0x49: CpuInstr::ldReg8Reg8(*this, REG8_C, REG8_C); break;
-	case 0x4A:
-		instrLdReg8Reg8(REG8_C, REG8_D);
-		break;
-	case 0x4B:
-		instrLdReg8Reg8(REG8_C, REG8_E);
-		break;
-	case 0x4C:
-		instrLdReg8Reg8(REG8_C, REG8_H);
-		break;
-	case 0x4D:
-		instrLdReg8Reg8(REG8_C, REG8_L);
-		break;
-	case 0x4E:
-		instrLdReg8Mem(REG8_C, REG16_HL);
-		break;
-	case 0x4F:
-		instrLdReg8Reg8(REG8_C, REG8_A);
-		break;
-	case 0x50:
-		instrLdReg8Reg8(REG8_D, REG8_B);
-		break;
-	case 0x51:
-		instrLdReg8Reg8(REG8_D, REG8_C);
-		break;
-	case 0x52:
-		instrLdReg8Reg8(REG8_D, REG8_D);
-		break;
-	case 0x53:
-		instrLdReg8Reg8(REG8_D, REG8_E);
-		break;
-	case 0x54:
-		instrLdReg8Reg8(REG8_D, REG8_H);
-		break;
-	case 0x55:
-		instrLdReg8Reg8(REG8_D, REG8_L);
-		break;
-	case 0x56:
-		instrLdReg8Mem(REG8_D, REG16_HL);
-		break;
-	case 0x57:
-		instrLdReg8Reg8(REG8_D, REG8_A);
-		break;
-	case 0x58:
-		instrLdReg8Reg8(REG8_E, REG8_B);
-		break;
-	case 0x59:
-		instrLdReg8Reg8(REG8_E, REG8_C);
-		break;
-	case 0x5A:
-		instrLdReg8Reg8(REG8_E, REG8_D);
-		break;
-	case 0x5B:
-		instrLdReg8Reg8(REG8_E, REG8_E);
-		break;
-	case 0x5C:
-		instrLdReg8Reg8(REG8_E, REG8_H);
-		break;
-	case 0x5D:
-		instrLdReg8Reg8(REG8_E, REG8_L);
-		break;
-	case 0x5E:
-		instrLdReg8Mem(REG8_E, REG16_HL);
-		break;
-	case 0x5F:
-		instrLdReg8Reg8(REG8_E, REG8_A);
-		break;
-	case 0x60:
-		instrLdReg8Reg8(REG8_H, REG8_B);
-		break;
-	case 0x61:
-		instrLdReg8Reg8(REG8_H, REG8_C);
-		break;
-	case 0x62:
-		instrLdReg8Reg8(REG8_H, REG8_D);
-		break;
-	case 0x63:
-		instrLdReg8Reg8(REG8_H, REG8_E);
-		break;
-	case 0x64:
-		instrLdReg8Reg8(REG8_H, REG8_H);
-		break;
-	case 0x65:
-		instrLdReg8Reg8(REG8_H, REG8_L);
-		break;
-	case 0x66:
-		instrLdReg8Mem(REG8_H, REG16_HL);
-		break;
-	case 0x67:
-		instrLdReg8Reg8(REG8_H, REG8_A);
-		break;
-	case 0x68:
-		instrLdReg8Reg8(REG8_L, REG8_B);
-		break;
-	case 0x69:
-		instrLdReg8Reg8(REG8_L, REG8_C);
-		break;
-	case 0x6A:
-		instrLdReg8Reg8(REG8_L, REG8_D);
-		break;
-	case 0x6B:
-		instrLdReg8Reg8(REG8_L, REG8_E);
-		break;
-	case 0x6C:
-		instrLdReg8Reg8(REG8_L, REG8_H);
-		break;
-	case 0x6D:
-		instrLdReg8Reg8(REG8_L, REG8_L);
-		break;
-	case 0x6E:
-		instrLdReg8Mem(REG8_L, REG16_HL);
-		break;
-	case 0x6F:
-		instrLdReg8Reg8(REG8_L, REG8_A);
-		break;
-	case 0x70:
-		instrLdMemReg8(REG16_HL, REG8_B);
-		break;
-	case 0x71:
-		instrLdMemReg8(REG16_HL, REG8_C);
-		break;
-	case 0x72:
-		instrLdMemReg8(REG16_HL, REG8_D);
-		break;
-	case 0x73:
-		instrLdMemReg8(REG16_HL, REG8_E);
-		break;
-	case 0x74:
-		instrLdMemReg8(REG16_HL, REG8_H);
-		break;
-	case 0x75:
-		instrLdMemReg8(REG16_HL, REG8_L);
-		break;
-	case 0x77:
-		instrLdMemReg8(REG16_HL, REG8_A);
-		break;
-	case 0x78:
-		instrLdReg8Reg8(REG8_A, REG8_B);
-		break;
-	case 0x79:
-		instrLdReg8Reg8(REG8_A, REG8_C);
-		break;
-	case 0x7A:
-		instrLdReg8Reg8(REG8_A, REG8_D);
-		break;
-	case 0x7B:
-		instrLdReg8Reg8(REG8_A, REG8_E);
-		break;
-	case 0x7C:
-		instrLdReg8Reg8(REG8_A, REG8_H);
-		break;
-	case 0x7D:
-		instrLdReg8Reg8(REG8_A, REG8_L);
-		break;
-	case 0x7E:
-		instrLdReg8Mem(REG8_A, REG16_HL);
-		break;
-	case 0x7F:
-		instrLdReg8Reg8(REG8_A, REG8_A);
-		break;
-	case 0x80:
-		instrAddReg8(REG8_B);
-		break;
-	case 0x81:
-		instrAddReg8(REG8_C);
-		break;
-	case 0x82:
-		instrAddReg8(REG8_D);
-		break;
-	case 0x83:
-		instrAddReg8(REG8_E);
-		break;
-	case 0x84:
-		instrAddReg8(REG8_H);
-		break;
-	case 0x85:
-		instrAddReg8(REG8_L);
-		break;
-	case 0x86:
-		instrAddMem(REG16_HL);
-		break;
-	case 0x87:
-		instrAddReg8(REG8_A);
-		break;
-	case 0x88:
-		instrAddReg8(REG8_B, true);
-		break;
-	case 0x89:
-		instrAddReg8(REG8_C, true);
-		break;
-	case 0x8A:
-		instrAddReg8(REG8_D, true);
-		break;
-	case 0x8B:
-		instrAddReg8(REG8_E, true);
-		break;
-	case 0x8C:
-		instrAddReg8(REG8_H, true);
-		break;
-	case 0x8D:
-		instrAddReg8(REG8_L, true);
-		break;
-	case 0x8E:
-		instrAddMem(REG16_HL, true);
-		break;
-	case 0x8F:
-		instrAddReg8(REG8_A, true);
-		break;
-	case 0x90:
-		instrSubReg8(REG8_B);
-		break;
-	case 0x91:
-		instrSubReg8(REG8_C);
-		break;
-	case 0x92:
-		instrSubReg8(REG8_D);
-		break;
-	case 0x93:
-		instrSubReg8(REG8_E);
-		break;
-	case 0x94:
-		instrSubReg8(REG8_H);
-		break;
-	case 0x95:
-		instrSubReg8(REG8_L);
-		break;
-	case 0x96:
-		instrSubMem(REG16_HL);
-		break;
-	case 0x97:
-		instrSubReg8(REG8_A);
-		break;
-	case 0x98:
-		instrSubReg8(REG8_B, true);
-		break;
-	case 0x99:
-		instrSubReg8(REG8_C, true);
-		break;
-	case 0x9A:
-		instrSubReg8(REG8_D, true);
-		break;
-	case 0x9B:
-		instrSubReg8(REG8_E, true);
-		break;
-	case 0x9C:
-		instrSubReg8(REG8_H, true);
-		break;
-	case 0x9D:
-		instrSubReg8(REG8_L, true);
-		break;
-	case 0x9E:
-		instrSubMem(REG16_HL, true);
-		break;
-	case 0x9F:
-		instrSubReg8(REG8_A, true);
-		break;
+	case 0x4A: CpuInstr::ldReg8Reg8(*this, REG8_C, REG8_D); break;
+	case 0x4B: CpuInstr::ldReg8Reg8(*this, REG8_C, REG8_E);	break;
+	case 0x4C: CpuInstr::ldReg8Reg8(*this, REG8_C, REG8_H);	break;
+	case 0x4D: CpuInstr::ldReg8Reg8(*this, REG8_C, REG8_L);	break;
+	case 0x4E: CpuInstr::ldReg8Mem(*this, REG8_C, emu.mem(), REG16_HL);	break;
+	case 0x4F: CpuInstr::ldReg8Reg8(*this, REG8_C, REG8_A);	break;
+	case 0x50: CpuInstr::ldReg8Reg8(*this, REG8_D, REG8_B);	break;
+	case 0x51: CpuInstr::ldReg8Reg8(*this, REG8_D, REG8_C);	break;
+	case 0x52: CpuInstr::ldReg8Reg8(*this, REG8_D, REG8_D);	break;
+	case 0x53: CpuInstr::ldReg8Reg8(*this, REG8_D, REG8_E);	break;
+	case 0x54: CpuInstr::ldReg8Reg8(*this, REG8_D, REG8_H);	break;
+	case 0x55: CpuInstr::ldReg8Reg8(*this, REG8_D, REG8_L); break;
+	case 0x56: CpuInstr::ldReg8Mem(*this, REG8_D, emu.mem(), REG16_HL); break;
+	case 0x57: CpuInstr::ldReg8Reg8(*this, REG8_D, REG8_A); break;
+	case 0x58: CpuInstr::ldReg8Reg8(*this, REG8_E, REG8_B); break;
+	case 0x59: CpuInstr::ldReg8Reg8(*this, REG8_E, REG8_C); break;
+	case 0x5A: CpuInstr::ldReg8Reg8(*this, REG8_E, REG8_D); break;
+	case 0x5B: CpuInstr::ldReg8Reg8(*this, REG8_E, REG8_E); break;
+	case 0x5C: CpuInstr::ldReg8Reg8(*this, REG8_E, REG8_H); break;
+	case 0x5D: CpuInstr::ldReg8Reg8(*this, REG8_E, REG8_L); break;
+	case 0x5E: CpuInstr::ldReg8Mem(*this, REG8_E, emu.mem(), REG16_HL);	break;
+	case 0x5F: CpuInstr::ldReg8Reg8(*this, REG8_E, REG8_A); break;
+	case 0x60: CpuInstr::ldReg8Reg8(*this, REG8_H, REG8_B); break;
+	case 0x61: CpuInstr::ldReg8Reg8(*this, REG8_H, REG8_C); break;
+	case 0x62: CpuInstr::ldReg8Reg8(*this, REG8_H, REG8_D); break;
+	case 0x63: CpuInstr::ldReg8Reg8(*this, REG8_H, REG8_E);	break;
+	case 0x64: CpuInstr::ldReg8Reg8(*this, REG8_H, REG8_H);	break;
+	case 0x65: CpuInstr::ldReg8Reg8(*this, REG8_H, REG8_L);	break;
+	case 0x66: CpuInstr::ldReg8Mem(*this, REG8_H, emu.mem(), REG16_HL); break;
+	case 0x67: CpuInstr::ldReg8Reg8(*this, REG8_H, REG8_A); break;
+	case 0x68: CpuInstr::ldReg8Reg8(*this, REG8_L, REG8_B); break;
+	case 0x69: CpuInstr::ldReg8Reg8(*this, REG8_L, REG8_C);	break;
+	case 0x6A: CpuInstr::ldReg8Reg8(*this, REG8_L, REG8_D);	break;
+	case 0x6B: CpuInstr::ldReg8Reg8(*this, REG8_L, REG8_E);	break;
+	case 0x6C: CpuInstr::ldReg8Reg8(*this, REG8_L, REG8_H); break;
+	case 0x6D: CpuInstr::ldReg8Reg8(*this, REG8_L, REG8_L); break;
+	case 0x6E: CpuInstr::ldReg8Mem(*this, REG8_L, emu.mem(), REG16_HL);	break;
+	case 0x6F: CpuInstr::ldReg8Reg8(*this, REG8_L, REG8_A);	break;
+	case 0x70: CpuInstr::ldMemReg8(*this, emu.mem(), REG16_HL, REG8_B);	break;
+	case 0x71: CpuInstr::ldMemReg8(*this, emu.mem(), REG16_HL, REG8_C); break;
+	case 0x72: CpuInstr::ldMemReg8(*this, emu.mem(), REG16_HL, REG8_D);	break;
+	case 0x73: CpuInstr::ldMemReg8(*this, emu.mem(), REG16_HL, REG8_E); break;
+	case 0x74: CpuInstr::ldMemReg8(*this, emu.mem(), REG16_HL, REG8_H); break;
+	case 0x75: CpuInstr::ldMemReg8(*this, emu.mem(), REG16_HL, REG8_L); break;
+	case 0x77: CpuInstr::ldMemReg8(*this, emu.mem(), REG16_HL, REG8_A); break;
+	case 0x78: CpuInstr::ldReg8Reg8(*this, REG8_A, REG8_B);	break;
+	case 0x79: CpuInstr::ldReg8Reg8(*this, REG8_A, REG8_C);	break;
+	case 0x7A: CpuInstr::ldReg8Reg8(*this, REG8_A, REG8_D); break;
+	case 0x7B: CpuInstr::ldReg8Reg8(*this, REG8_A, REG8_E);	break;
+	case 0x7C: CpuInstr::ldReg8Reg8(*this, REG8_A, REG8_H);	break;
+	case 0x7D: CpuInstr::ldReg8Reg8(*this, REG8_A, REG8_L);	break;
+	case 0x7E: CpuInstr::ldReg8Mem(*this, REG8_A, emu.mem(), REG16_HL);	break;
+	case 0x7F: CpuInstr::ldReg8Reg8(*this, REG8_A, REG8_A);	break;
+    case 0x80: CpuInstr::addReg8(*this, REG8_B); break;
+	case 0x81: CpuInstr::addReg8(*this, REG8_C); break;
+	case 0x82: CpuInstr::addReg8(*this, REG8_D); break;
+	case 0x83: CpuInstr::addReg8(*this, REG8_E); break;
+	case 0x84: CpuInstr::addReg8(*this, REG8_H); break;
+	case 0x85: CpuInstr::addReg8(*this, REG8_L); break;
+    case 0x86: CpuInstr::addMem(*this, emu.mem(), Cpu::REG16_HL); break;
+	case 0x87: CpuInstr::addReg8(*this, REG8_A); break;
+	case 0x88: CpuInstr::addReg8(*this, REG8_B, true); break;
+	case 0x89: CpuInstr::addReg8(*this, REG8_C, true); break;
+	case 0x8A: CpuInstr::addReg8(*this, REG8_D, true); break;
+	case 0x8B: CpuInstr::addReg8(*this, REG8_E, true); break;
+	case 0x8C: CpuInstr::addReg8(*this, REG8_H, true); break;
+	case 0x8D: CpuInstr::addReg8(*this, REG8_L, true); break;
+    case 0x8E: CpuInstr::addMem(*this, emu.mem(), REG16_HL, true); break;
+	case 0x8F: CpuInstr::addReg8(*this, REG8_A, true); break;
+    case 0x90: CpuInstr::subReg8(*this, REG8_B); break;
+	case 0x91: CpuInstr::subReg8(*this, REG8_C); break;
+	case 0x92: CpuInstr::subReg8(*this, REG8_D); break;
+	case 0x93: CpuInstr::subReg8(*this, REG8_E); break;
+	case 0x94: CpuInstr::subReg8(*this, REG8_H); break;
+	case 0x95: CpuInstr::subReg8(*this, REG8_L); break;
+    case 0x96: CpuInstr::subMem(*this, emu.mem(), REG16_HL); break;
+	case 0x97: CpuInstr::subReg8(*this, REG8_A); break;
+	case 0x98: CpuInstr::subReg8(*this, REG8_B, true); break;
+	case 0x99: CpuInstr::subReg8(*this, REG8_C, true); break;
+	case 0x9A: CpuInstr::subReg8(*this, REG8_D, true); break;
+	case 0x9B: CpuInstr::subReg8(*this, REG8_E, true); break;
+	case 0x9C: CpuInstr::subReg8(*this, REG8_H, true); break;
+	case 0x9D: CpuInstr::subReg8(*this, REG8_L, true); break;
+    case 0x9E: CpuInstr::subMem(*this, emu.mem(), REG16_HL, true); break;
+	case 0x9F: CpuInstr::subReg8(*this, REG8_A, true); break;
 	case 0xA8:
 		instrXorReg8(REG8_B);
 		break;
@@ -681,18 +471,12 @@ void Cpu::nextInstruction(const Emulator& emu)
 	case 0xC0:
 		instrRet();
 		break;
-	case 0xC1:
-		instrPop(REG16_BC);
-		break;
+    case 0xC1: CpuInstr::pop(*this, emu.mem(), REG16_BC); break;
 	case 0xC4:
 		instrCall();
 		break;
-	case 0xC5:
-		instrPush(REG16_BC);
-		break;
-	case 0xC6:
-		instrAddImm();
-		break;
+    case 0xC5: CpuInstr::push(*this, emu.mem(), REG16_BC); break;
+    case 0xC6: CpuInstr::addImm(*this, emu.mem()); break;
 	case 0xC8:
 		instrRet();
 		break;
@@ -708,72 +492,38 @@ void Cpu::nextInstruction(const Emulator& emu)
 	case 0xCD:
 		instrCall();
 		break;
-	case 0xCE:
-		instrAddImm(true);
-		break;
+	case 0xCE: CpuInstr::addImm(*this, emu.mem(), true); break;
 	case 0xD0:
 		instrRet();
 		break;
-	case 0xD1:
-		instrPop(REG16_DE);
-		break;
+	case 0xD1: CpuInstr::pop(*this, emu.mem(), REG16_DE); break;
 	case 0xD4:
 		instrCall();
 		break;
-	case 0xD5:
-		instrPush(REG16_DE);
-		break;
-	case 0xD6:
-		instrSubImm();
-		break;
+	case 0xD5: CpuInstr::push(*this, emu.mem(), REG16_DE); break;
+    case 0xD6: CpuInstr::subImm(*this, emu.mem()); break;
 	case 0xD8:
 		instrRet();
 		break;
 	case 0xDC:
 		instrCall();
 		break;
-	case 0xDE:
-		instrSubImm(true);
-		break;
-	case 0xE0:
-		instrLdFFnA();
-		break;
-	case 0xE1:
-		instrPop(REG16_HL);
-		break;
-	case 0xE2:
-		instrLdFFcA();
-		break;
-	case 0xE5:
-		instrPush(REG16_HL);
-		break;
+	case 0xDE: CpuInstr::subImm(*this, emu.mem(), true); break;
+    case 0xE0: CpuInstr::ldFFnA(*this, emu.mem()); break;
+	case 0xE1: CpuInstr::pop(*this, emu.mem(), REG16_HL); break;
+    case 0xE2: CpuInstr::ldFFcA(*this, emu.mem()); break;
+	case 0xE5: CpuInstr::push(*this, emu.mem(), REG16_HL); break;
 	case 0xE8:
 		instrAddSpImm();
 		break;
-	case 0xEA:
-		instrLdMemImmReg8(REG8_A);
-		break;
-	case 0xF0:
-		instrLdAFFn();
-		break;
-	case 0xF1:
-		instrPop(REG16_AF);
-		break;
-	case 0xF2:
-		instrLdAFFc();
-		break;
-	case 0xF5:
-		instrPush(REG16_AF);
-		break;
-	case 0xF8:
-		instrLdHlSpImm();
-		break;
-	case 0xF9:
-		instrLdSpHl();
-		break;
-	case 0xFA:
-		instrLdReg8MemImm(REG8_A);
-		break;
+    case 0xEA: CpuInstr::ldMemImmReg8(*this, emu.mem(), REG8_A); break;
+    case 0xF0: CpuInstr::ldAFFn(*this, emu.mem()); break;
+	case 0xF1: CpuInstr::pop(*this, emu.mem(), REG16_AF); break;
+    case 0xF2: CpuInstr::ldAFFc(*this, emu.mem()); break;
+	case 0xF5: CpuInstr::push(*this, emu.mem(), REG16_AF); break;
+    case 0xF8: CpuInstr::ldHlSpImm(*this, emu.mem()); break;
+    case 0xF9: CpuInstr::ldSpHl(*this); break;
+	case 0xFA: CpuInstr::ldReg8MemImm(*this, REG8_A, emu.mem()); break;
 	case 0xFE:
 		instrCpImm();
 		break;
@@ -782,318 +532,6 @@ void Cpu::nextInstruction(const Emulator& emu)
 		CpuInstr::nop(*this);
 		break;
 	}
-}
-
-//..................................................................................................
-void Cpu::instrLdReg8Mem(Reg8 reg, Reg16 addr)
-{
-	m_instrCycles = 8;
-	setReg8(reg, m_emu->mem()->read(reg16(addr)));
-}
-
-//..................................................................................................
-void Cpu::instrLddReg8Mem(Reg8 reg, Reg16 addr)
-{
-	instrLdReg8Mem(reg, addr);
-	setReg16(addr, reg16(addr) - 1);
-}
-
-//..................................................................................................
-void Cpu::instrLdiReg8Mem(Reg8 reg, Reg16 addr)
-{
-	instrLdReg8Mem(reg, addr);
-	setReg16(addr, reg16(addr) + 1);
-}
-
-//..................................................................................................
-void Cpu::instrLdReg8MemImm(Reg8 reg)
-{
-	m_instrCycles = 16;
-	fetchParam16();
-	uint16_t addr = m_parameters[0] + (m_parameters[1] << 8);
-	m_reg8[reg] = m_emu->mem()->read(addr);
-}
-
-//..................................................................................................
-void Cpu::instrLdMemReg8(Reg16 addr, Reg8 reg)
-{
-	m_instrCycles = 8;
-	uint16_t address = reg16(addr);
-	m_emu->mem()->write(address, m_reg8[reg]);
-}
-
-//..................................................................................................
-void Cpu::instrLddMemReg8(Reg16 addr, Reg8 reg)
-{
-	instrLdMemReg8(addr, reg);
-	setReg16(addr, reg16(addr) - 1);
-}
-
-//..................................................................................................
-void Cpu::instrLdiMemReg8(Reg16 addr, Reg8 reg)
-{
-	instrLdMemReg8(addr, reg);
-	setReg16(addr, reg16(addr) + 1);
-}
-
-//..................................................................................................
-void Cpu::instrLdMemImm(Reg16 addr)
-{
-	m_instrCycles = 12;
-	fetchParam8();
-	m_emu->mem()->write(reg16(addr), m_parameters[0]);
-}
-
-//..................................................................................................
-void Cpu::instrLdMemImmReg8(Reg8 reg)
-{
-	m_instrCycles = 16;
-	fetchParam16();
-	m_emu->mem()->write(m_parameters[0] + (m_parameters[1] << 8), m_reg8[reg]);
-}
-
-//..................................................................................................
-void Cpu::instrLdAFFc(void)
-{
-	m_instrCycles = 8;
-	m_reg8[REG8_A] = m_emu->mem()->read(0xFF00 + m_reg8[REG8_C]);
-}
-
-//..................................................................................................
-void Cpu::instrLdFFcA(void)
-{
-	m_instrCycles = 8;
-	m_emu->mem()->write(0xFF00 + m_reg8[REG8_C], m_reg8[REG8_A]);
-}
-
-//..................................................................................................
-void Cpu::instrLdAFFn(void)
-{
-	m_instrCycles = 12;
-	fetchParam8();
-	m_reg8[REG8_A] = m_emu->mem()->read(0xFF00 + m_parameters[0]);
-}
-
-//..................................................................................................
-void Cpu::instrLdFFnA(void)
-{
-	m_instrCycles = 12;
-	fetchParam8();
-	m_emu->mem()->write(0xFF00 + m_parameters[0], m_reg8[REG8_A]);
-}
-
-/**************************************************************************************************/
-/* 16-bit loads                                                                                   */
-/**************************************************************************************************/
-
-//..................................................................................................
-void Cpu::instrLdReg16Imm(Reg16 reg)
-{
-	m_instrCycles = 12;
-	fetchParam16();
-	setReg16(reg, (m_parameters[1] << 8) + m_parameters[0]);
-}
-
-//..................................................................................................
-void Cpu::instrLdSpHl(void)
-{
-	m_instrCycles = 8;
-	setReg16(REG16_SP, reg16(REG16_HL));
-}
-
-//..................................................................................................
-void Cpu::instrLdHlSpImm(void)
-{
-	m_instrCycles = 12;
-	fetchParam8();
-	uint16_t result = (uint16_t)((int16_t)reg16(REG16_SP) + (int16_t)m_parameters[0]);
-	setReg16(REG16_HL, result);
-
-	setFlagZ(false);
-	setFlagN(false);
-	setFlagH(IS_HALF_CARRY2(reg16(REG16_SP), m_parameters[0]));
-	setFlagC(IS_CARRY2(reg16(REG16_SP), m_parameters[0]));
-}
-
-//..................................................................................................
-void Cpu::instrLdMemImmSp(void)
-{
-	m_instrCycles = 20;
-	fetchParam16();
-	uint16_t address = m_parameters[0] + (m_parameters[1] << 8);
-	m_emu->mem()->write(address, (uint8_t)(reg16(REG16_SP) && 0x00FF));
-	m_emu->mem()->write(address + 1, (uint8_t)((reg16(REG16_SP) && 0xFF00) >> 8));
-}
-
-//..................................................................................................
-void Cpu::instrPush(Reg16 reg)
-{
-	m_instrCycles = 16;
-	uint16_t spVal = reg16(REG16_SP);
-	m_emu->mem()->write(spVal - 1, (uint8_t)((reg16(reg) & 0xFF00) >> 8));
-	m_emu->mem()->write(spVal - 2, (uint8_t)(reg16(reg) & 0x00FF));
-	setReg16(REG16_SP, spVal - 2);
-}
-
-//..................................................................................................
-void Cpu::instrPop(Reg16 reg)
-{
-	m_instrCycles = 12;
-	uint16_t spVal = reg16(REG16_SP);
-	uint8_t low = m_emu->mem()->read(spVal);
-	uint8_t high = m_emu->mem()->read(spVal + 1);
-	setReg16(reg, ((uint16_t)high << 8) + (uint16_t)low);
-	setReg16(REG16_SP, spVal + 2);
-}
-
-/**************************************************************************************************/
-/* 8-bit ALU                                                                                      */
-/**************************************************************************************************/
-
-//..................................................................................................
-void Cpu::instrAddReg8(Reg8 reg, bool carry)
-{
-	m_instrCycles = 4;
-
-	uint8_t aVal = m_reg8[REG8_A];
-	uint8_t regVal = m_reg8[reg];
-	if (carry)
-	{
-		uint8_t carryVal = FLAG_TO_UINT(flagC());
-		m_reg8[REG8_A] += regVal + carryVal;
-		setFlagH(IS_HALF_CARRY3(aVal, regVal, carryVal));
-		setFlagC(IS_CARRY3(aVal, regVal, carryVal));
-	}
-	else
-	{
-		m_reg8[REG8_A] += regVal;
-		setFlagH(IS_HALF_CARRY2(aVal, regVal));
-		setFlagC(IS_CARRY2(aVal, regVal));
-	}
-	setFlagZ(IS_ZERO(m_reg8[REG8_A]));
-	setFlagN(false);
-}
-
-//..................................................................................................
-void Cpu::instrAddMem(Reg16 reg, bool carry)
-{
-	m_instrCycles = 8;
-
-	uint8_t aVal = m_reg8[REG8_A];
-	uint8_t memVal = m_emu->mem()->read(reg16(reg));
-	if (carry)
-	{
-		uint8_t carryVal = FLAG_TO_UINT(flagC());
-		m_reg8[REG8_A] += memVal + carryVal;
-		setFlagH(IS_HALF_CARRY3(aVal, memVal, carryVal));
-		setFlagC(IS_CARRY3(aVal, memVal, carryVal));
-	}
-	else
-	{
-		m_reg8[REG8_A] += memVal;
-		setFlagH(IS_HALF_CARRY2(aVal, memVal));
-		setFlagC(IS_CARRY2(aVal, memVal));
-	}
-	setFlagZ(IS_ZERO(m_reg8[REG8_A]));
-	setFlagN(false);
-}
-
-//..................................................................................................
-void Cpu::instrAddImm(bool carry)
-{
-	m_instrCycles = 8;
-	fetchParam8();
-
-	uint8_t aVal = m_reg8[REG8_A];
-	uint8_t immVal = m_parameters[0];
-	if (carry)
-	{
-		uint8_t carryVal = FLAG_TO_UINT(flagC());
-		m_reg8[REG8_A] += immVal + carryVal;
-		setFlagH(IS_HALF_CARRY3(aVal, immVal, carryVal));
-		setFlagC(IS_CARRY3(aVal, immVal, carryVal));
-	}
-	else
-	{
-		m_reg8[REG8_A] += immVal;
-		setFlagH(IS_HALF_CARRY2(aVal, immVal));
-		setFlagC(IS_CARRY2(aVal, immVal));
-	}
-	setFlagZ(IS_ZERO(m_reg8[REG8_A]));
-	setFlagN(false);
-}
-
-//..................................................................................................
-void Cpu::instrSubReg8(Reg8 reg, bool carry)
-{
-	m_instrCycles = 4;
-
-	uint8_t aVal = m_reg8[REG8_A];
-	uint8_t regVal = m_reg8[reg];
-	if (carry)
-	{
-		uint8_t carryVal = FLAG_TO_UINT(flagC());
-		m_reg8[REG8_A] -= (regVal + carryVal);
-		setFlagH(IS_HALF_BORROW3(aVal, regVal, carryVal));
-		setFlagC(IS_BORROW3(aVal, regVal, carryVal));
-	}
-	else
-	{
-		m_reg8[REG8_A] -= regVal;
-		setFlagH(IS_HALF_BORROW2(aVal, regVal));
-		setFlagC(IS_BORROW2(aVal, regVal));
-	}
-	setFlagZ(IS_ZERO(m_reg8[REG8_A]));
-	setFlagN(true);
-}
-
-//..................................................................................................
-void Cpu::instrSubMem(Reg16 reg, bool carry)
-{
-	m_instrCycles = 8;
-
-	uint8_t aVal = m_reg8[REG8_A];
-	uint8_t memVal = m_emu->mem()->read(reg16(reg));
-	if (carry)
-	{
-		uint8_t carryVal = FLAG_TO_UINT(flagC());
-		m_reg8[REG8_A] -= (memVal + carryVal);
-		setFlagH(IS_HALF_BORROW3(aVal, memVal, carryVal));
-		setFlagC(IS_BORROW3(aVal, memVal, carryVal));
-	}
-	else
-	{
-		m_reg8[REG8_A] -= memVal;
-		setFlagH(IS_HALF_BORROW2(aVal, memVal));
-		setFlagC(IS_BORROW2(aVal, memVal));
-	}
-	setFlagZ(IS_ZERO(m_reg8[REG8_A]));
-	setFlagN(true);
-}
-
-//..................................................................................................
-void Cpu::instrSubImm(bool carry)
-{
-	m_instrCycles = 8;
-	fetchParam8();
-
-	uint8_t aVal = m_reg8[REG8_A];
-	uint8_t immVal = m_parameters[0];
-	if (carry)
-	{
-		uint8_t carryVal = FLAG_TO_UINT(flagC());
-		m_reg8[REG8_A] -= (immVal + carryVal);
-		setFlagH(IS_HALF_BORROW3(aVal, immVal, carryVal));
-		setFlagC(IS_BORROW3(aVal, immVal, carryVal));
-	}
-	else
-	{
-		m_reg8[REG8_A] -= immVal;
-		setFlagH(IS_HALF_BORROW2(aVal, immVal));
-		setFlagC(IS_BORROW2(aVal, immVal));
-	}
-	setFlagZ(IS_ZERO(m_reg8[REG8_A]));
-	setFlagN(true);
 }
 
 //..................................................................................................

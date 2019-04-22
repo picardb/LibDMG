@@ -88,35 +88,7 @@ namespace LibDMG
 
         void nextInstruction(const Emulator& emu);
 
-		void instrLdReg8Mem(Reg8 reg, Reg16 addr);
-		void instrLddReg8Mem(Reg8 reg, Reg16 addr);
-		void instrLdiReg8Mem(Reg8 reg, Reg16 addr);
-		void instrLdReg8MemImm(Reg8 reg);
-		void instrLdMemReg8(Reg16 addr, Reg8 reg);
-		void instrLddMemReg8(Reg16 addr, Reg8 reg);
-		void instrLdiMemReg8(Reg16 addr, Reg8 reg);
-		void instrLdMemImm(Reg16 addr);
-		void instrLdMemImmReg8(Reg8 reg);
-		void instrLdAFFc(void);
-		void instrLdFFcA(void);
-		void instrLdAFFn(void);
-		void instrLdFFnA(void);
-
-		// 16-bit loads
-		void instrLdReg16Imm(Reg16 reg);
-		void instrLdSpHl(void);
-		void instrLdHlSpImm(void);
-		void instrLdMemImmSp(void);
-		void instrPush(Reg16 reg);
-		void instrPop(Reg16 reg);
-
-		// 8-bit ALU
-		void instrAddReg8(Reg8 reg, bool carry = false);
-		void instrAddMem(Reg16 reg, bool carry = false);
-		void instrAddImm(bool carry = false);
-		void instrSubReg8(Reg8 reg, bool carry = false);
-		void instrSubMem(Reg16 reg, bool carry = false);
-		void instrSubImm(bool carry = false);
+		
 		void instrXorReg8(Reg8 reg);
 		void instrIncReg8(Reg8 reg);
 		void instrDecReg8(Reg8 reg);

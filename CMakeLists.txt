@@ -48,6 +48,9 @@ set(LIBDMG_CORE_SRCS ${LIBDMG_CORE_SRC_DIR}/emulator.cpp
                      ${LIBDMG_CORE_SRC_DIR}/cart/cart.cpp
                      ${LIBDMG_CORE_SRC_DIR}/cpu/cpu.cpp
                      ${LIBDMG_CORE_SRC_DIR}/cpu/cpu_instr.cpp
+					 ${LIBDMG_CORE_SRC_DIR}/cpu/cpu_instr_ld8.cpp
+					 ${LIBDMG_CORE_SRC_DIR}/cpu/cpu_instr_ld16.cpp
+					 ${LIBDMG_CORE_SRC_DIR}/cpu/cpu_instr_alu8.cpp
                      ${LIBDMG_CORE_SRC_DIR}/mem/mem_controller_rom_only.cpp
                      ${LIBDMG_CORE_SRC_DIR}/mem/boot_rom.cpp
                      ${LIBDMG_CORE_SRC_DIR}/peripherals/peripherals.cpp
