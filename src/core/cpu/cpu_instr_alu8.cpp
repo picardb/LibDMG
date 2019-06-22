@@ -11,7 +11,7 @@ namespace LibDMG
     /**************************************************************************************************/
 
     //..................................................................................................
-    void CpuInstr::addReg8(Cpu& cpu, Cpu::Reg8 reg, bool carry = false)
+    void CpuInstr::addReg8(Cpu& cpu, Cpu::Reg8 reg, bool carry)
     {
         cpu.m_instrCycles = 4;
 
@@ -35,7 +35,7 @@ namespace LibDMG
     }
 
     //..................................................................................................
-    void CpuInstr::addMem(Cpu& cpu, MemControllerBase& mem, Cpu::Reg16 reg, bool carry = false)
+    void CpuInstr::addMem(Cpu& cpu, MemControllerBase& mem, Cpu::Reg16 reg, bool carry)
     {
         cpu.m_instrCycles = 8;
 
@@ -59,7 +59,7 @@ namespace LibDMG
     }
 
     //..................................................................................................
-    void CpuInstr::addImm(Cpu& cpu, MemControllerBase& mem, bool carry = false)
+    void CpuInstr::addImm(Cpu& cpu, MemControllerBase& mem, bool carry)
     {
 
         cpu.m_instrCycles = 8;
@@ -85,7 +85,7 @@ namespace LibDMG
     }
 
     //..................................................................................................
-    void CpuInstr::subReg8(Cpu& cpu, Cpu::Reg8 reg, bool carry = false)
+    void CpuInstr::subReg8(Cpu& cpu, Cpu::Reg8 reg, bool carry)
     {
         cpu.m_instrCycles = 4;
 
@@ -109,7 +109,7 @@ namespace LibDMG
     }
 
     //..................................................................................................
-    void CpuInstr::subMem(Cpu& cpu, MemControllerBase& mem, Cpu::Reg16 reg, bool carry = false)
+    void CpuInstr::subMem(Cpu& cpu, MemControllerBase& mem, Cpu::Reg16 reg, bool carry)
     {
         cpu.m_instrCycles = 8;
 
@@ -133,7 +133,7 @@ namespace LibDMG
     }
 
     //..................................................................................................
-    void CpuInstr::subImm(Cpu& cpu, MemControllerBase& mem, bool carry = false)
+    void CpuInstr::subImm(Cpu& cpu, MemControllerBase& mem, bool carry)
     {
         cpu.m_instrCycles = 8;
         fetchParam8(cpu, mem);
