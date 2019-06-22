@@ -15,7 +15,7 @@ namespace LibDMG
 	public:
 		MemControllerRomOnly(Emulator * emu = nullptr) :
 			MemControllerBase(emu),
-			m_bootRom(std::make_unique<BootRom>("D:\\Dev\\Visual_Studio_Projects\\LibDMG\\DMG_ROM.bin"))
+			m_bootRom(std::make_unique<BootRom>("D:\\Dev\\workspace\\LibDMG\\DMG_ROM.bin"))
 		{}
 
 		virtual uint8_t read(uint16_t addr) const;

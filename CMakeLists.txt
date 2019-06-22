@@ -44,6 +44,7 @@ endif()
 ###############################################################################
 set(LIBDMG_CORE_NAME "core")
 set(LIBDMG_CORE_SRC_DIR ${CMAKE_SOURCE_DIR}/src/core)
+# Source files
 set(LIBDMG_CORE_SRCS ${LIBDMG_CORE_SRC_DIR}/emulator.cpp
                      ${LIBDMG_CORE_SRC_DIR}/cart/cart.cpp
                      ${LIBDMG_CORE_SRC_DIR}/cpu/cpu.cpp
@@ -51,13 +52,30 @@ set(LIBDMG_CORE_SRCS ${LIBDMG_CORE_SRC_DIR}/emulator.cpp
                      ${LIBDMG_CORE_SRC_DIR}/cpu/cpu_instr_ld8.cpp
                      ${LIBDMG_CORE_SRC_DIR}/cpu/cpu_instr_ld16.cpp
                      ${LIBDMG_CORE_SRC_DIR}/cpu/cpu_instr_alu8.cpp
+                     ${LIBDMG_CORE_SRC_DIR}/cpu/cpu_instr_alu16.cpp
+                     ${LIBDMG_CORE_SRC_DIR}/cpu/cpu_instr_jmp.cpp
+                     ${LIBDMG_CORE_SRC_DIR}/cpu/cpu_instr_rs.cpp
+                     ${LIBDMG_CORE_SRC_DIR}/cpu/cpu_instr_cb.cpp
                      ${LIBDMG_CORE_SRC_DIR}/mem/mem_controller_rom_only.cpp
                      ${LIBDMG_CORE_SRC_DIR}/mem/boot_rom.cpp
                      ${LIBDMG_CORE_SRC_DIR}/peripherals/peripherals.cpp
                      ${LIBDMG_CORE_SRC_DIR}/peripherals/lcd_controller.cpp
                      ${LIBDMG_CORE_SRC_DIR}/peripherals/timer.cpp
                      ${LIBDMG_CORE_SRC_DIR}/logger.cpp)
-add_library("${LIBDMG_CORE_NAME}" STATIC ${LIBDMG_CORE_SRCS})
+# Header files                     
+set(LIBDMG_CORE_HEADERS ${LIBDMG_CORE_SRC_DIR}/emulator.hpp
+                        ${LIBDMG_CORE_SRC_DIR}/logger.hpp
+                        ${LIBDMG_CORE_SRC_DIR}/cart/cart.hpp
+                        ${LIBDMG_CORE_SRC_DIR}/cpu/cpu.hpp
+                        ${LIBDMG_CORE_SRC_DIR}/cpu/cpu_instr.hpp
+                        ${LIBDMG_CORE_SRC_DIR}/cpu/cpu_macros.hpp
+                        ${LIBDMG_CORE_SRC_DIR}/mem/mem_controller_base.hpp
+                        ${LIBDMG_CORE_SRC_DIR}/mem/mem_controller_rom_only.hpp
+                        ${LIBDMG_CORE_SRC_DIR}/mem/boot_rom.hpp
+                        ${LIBDMG_CORE_SRC_DIR}/peripherals/peripherals.hpp
+                        ${LIBDMG_CORE_SRC_DIR}/peripherals/lcd_controller.hpp
+                        ${LIBDMG_CORE_SRC_DIR}/peripherals/timer.hpp)
+add_library("${LIBDMG_CORE_NAME}" STATIC ${LIBDMG_CORE_SRCS} ${LIBDMG_CORE_HEADERS})
 target_include_directories(${LIBDMG_CORE_NAME} PRIVATE ${CEREAL_INCLUDE_DIR} 
                                                        ${LIBDMG_CORE_SRC_DIR})
 

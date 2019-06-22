@@ -87,36 +87,6 @@ namespace LibDMG
         uint16_t m_regSP;
 
         void nextInstruction(const Emulator& emu);
-
-		// 16-bit ALU
-		void instrIncReg16(Reg16 reg);
-		void instrDecReg16(Reg16 reg);
-		void instrAddHlReg16(Reg16 reg);
-		void instrAddSpImm(void);
-
-		// Jumps
-		void instrJr(void);
-		void instrCall(void);
-		void instrRet(void);
-
-		// Rotates and shifts
-		void instrRlA(bool rlc);
-		void instrRrA(bool rrc);
-
-		void instrCbMain(void);
-		void instrCbBitReg8(Reg8 reg, uint8_t index);
-		void instrCbBitMem8(uint8_t index);
-		void instrCbResReg8(Reg8 reg, uint8_t index);
-		void instrCbResMem8(uint8_t index);
-		void instrCbSetReg8(Reg8 reg, uint8_t index);
-		void instrCbSetMem8(uint8_t index);
-		void instrCbRlReg8(Reg8 reg, bool rlc = false);
-		void instrCbRlMem(bool rlc = false);
-		void instrCbRrReg8(Reg8 reg, bool rrc = false);
-		void instrCbRrMem(bool rrc = false);
-
-		void instrHelperRl(Reg8 reg, bool rlc);
-		void instrHelperRr(Reg8 reg, bool rrc);
     };
 }
 

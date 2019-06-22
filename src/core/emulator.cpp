@@ -5,7 +5,7 @@ using namespace std;
 
 Emulator::Emulator()
 {
-    m_cpu = make_unique<Cpu>(this);
+    m_cpu = make_unique<Cpu>();
     m_periph = make_unique<Peripherals>(this);
     m_mem = make_unique<MemControllerRomOnly>(this);
 }
